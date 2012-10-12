@@ -12,6 +12,9 @@ CROSSWIKIS_DB_PATH = (
   '/home/jstn/research/knowitall/synonym-data-eval/data/google-crosswikis/'
   'synonyms.db'
 )
+SYNONYM_ENTITY_DIST_PATH = (
+  '/home/jstn/research/knowitall/synonym-data-eval/results/cw-entity-dist.tsv'
+)
 
 def getTestSynonyms(testSetFile):
   """Gets a dict mapping entities to synonyms from the test set file.
@@ -43,7 +46,7 @@ def parseRowInfo(info):
   Args:
     info: The info string.
 
-  Returns: The total numerator
+  Returns: The total numerator.
   """
   numerator = 0
   labels = ['W:', 'Wx:', 'w:', 'w\':']
@@ -87,9 +90,7 @@ def getEntityDistribution(synonym, cursor):
   )
   # Crosswikis is case sensitive. To make this case insensitive, we sum the
   # numerators for unique synonym spellings and make that the denominator for
-  # them all (anchorDenoms). Meanwhile, we sum the numerators of all (synonym,
-  # entity) pairs (entityCounts), which correct adjusts the counts for case
-  # insensitivity.
+  # them all.
   entityCounts = {}
 
   for anchor, entity, info in cursor.execute(query, (synonym,)):
@@ -119,14 +120,16 @@ def printEntityDistribution(correctEntity, synonym, entityDistribution):
     entityDistribution: A list of (entity, num, denom) tuples. The list is
       sorted in descending order of conditional probability (num / denom).
   """
+  outputFile = open(SYNONYM_ENTITY_DIST_PATH, 'w')
   for (entity, num, denom) in entityDistribution:
     print('{0}\t{1}\t{2}\t{3}\t{4}\t{5}'.format(
-      correctEntity,
-      synonym,
-      entity,
-      (None if denom is 0 else num/denom),
-      num,
-      denom)
+        correctEntity,
+        synonym,
+        entity,
+        (None if denom is 0 else num/denom),
+        num,
+        denom)
+      file=outputFile
     )
 
 def main():

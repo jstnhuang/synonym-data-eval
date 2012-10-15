@@ -120,7 +120,7 @@ def printEntityDistribution(correctEntity, synonym, entityDistribution):
     entityDistribution: A list of (entity, num, denom) tuples. The list is
       sorted in descending order of conditional probability (num / denom).
   """
-  outputFile = open(SYNONYM_ENTITY_DIST_PATH, 'w')
+  outputFile = open(SYNONYM_ENTITY_DIST_PATH, 'a')
   for (entity, num, denom) in entityDistribution:
     print('{0}\t{1}\t{2}\t{3}\t{4}\t{5}'.format(
         correctEntity,
@@ -128,8 +128,9 @@ def printEntityDistribution(correctEntity, synonym, entityDistribution):
         entity,
         (None if denom is 0 else num/denom),
         num,
-        denom)
-      file=outputFile
+        denom),
+      file=outputFile,
+      flush=True
     )
 
 def main():

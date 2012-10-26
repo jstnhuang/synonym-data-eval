@@ -6,14 +6,15 @@ import re
 import sqlite3
 
 SYNONYM_DEV_SET_PATH =(
-  '/home/jstn/research/knowitall/synonym-data-eval/data/short-synonym-dev-set'
+  '/home/jstn/research/knowitall/synonym-data-eval/data/odd-synonym-dev-set'
 )
 CROSSWIKIS_DB_PATH = (
   '/home/jstn/research/knowitall/synonym-data-eval/data/google-crosswikis/'
   'synonyms.db'
 )
 SYNONYM_ENTITY_DIST_PATH = (
-  '/home/jstn/research/knowitall/synonym-data-eval/results/cw-entity-dist.tsv'
+  '/home/jstn/research/knowitall/synonym-data-eval/results/'
+  'cw-odd-entity-dist.tsv'
 )
 
 def getTestSynonyms(testSetFile):
@@ -140,6 +141,7 @@ def main():
   cursor = connection.cursor()
 
   for entity, synonyms in testSet.items():
+    print(entity)
     for synonym in synonyms:
       entityDistribution = getEntityDistribution(synonym, cursor)
       printEntityDistribution(entity, synonym, entityDistribution)

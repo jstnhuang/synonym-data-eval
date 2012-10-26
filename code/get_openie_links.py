@@ -1,19 +1,14 @@
-# Evaluates the synonyms from the current Open IE entity linker and from the
-# Google Crosswikis data.
+# Evaluates the synonyms from the current Open IE entity linker.
 import os
 import re
 import sys
 
 SYNONYM_DEV_SET_PATH = ('/home/jstn/research/knowitall/synonym-data-eval/data/'
-  'synonym-dev-set-short')
+  'odd-synonym-dev-set')
 OPENIE_BACKEND_JAR_PATH = ('/home/jstn/research/knowitall/openie-backend/'
   'target/openiedemo-backend-1.0.2-SNAPSHOT-jar-with-dependencies.jar')
 OPENIE_ENTITYLINKS_PATH = ('/home/jstn/research/knowitall/synonym-data-eval/'
-  'results/openie-entitylinks')
-OPENIE_ARG1LINKS_PATH = ('/home/jstn/research/knowitall/synonym-data-eval/'
-  'results/openie-arg1links')
-OPENIE_ARG2LINKS_PATH = ('/home/jstn/research/knowitall/synonym-data-eval/'
-  'results/openie-arg2links')
+  'results/openie-odd-entitylinks')
 
 def getTestSynonyms(testSetFile):
   """Gets dicts for fbids, entities and synonyms from the test set file.
@@ -48,24 +43,27 @@ def getEntityLinks(testSet):
     entityLinksFile: The file the results should be written to.
   """
   testSetSize = len(testSet)
-  for index, (entity, synonyms) in enumerate(testSet.iteritems(), start=1):
+  for index, (entity, synonyms) in enumerate(testSet.items(), start=1):
     print ("Querying synonyms for {entity} ({index} of {size})".format(
       entity=entity, index=index, size=testSetSize))
     for synonym in synonyms:
-      arg1Command = ('java -jar {jarFile} --arg1 "{string}" --noInst '
-        '| cut -d")" -f1-4 '
-        '| grep -i "^Group(.*): ({string}, .*, .*)" | less'
-        '>> {outputPath}').format(
+      command = ('java -jar {jarFile} --arg{argn} "{string}" --noInst '
+        '--tabOutput '
+        '| cut -d"	" -f{fields} '
+        '| grep -v ".*ExtractionGroupFetcher.*"'
+        '>> {outputPath}')
+      arg1Command = command.format(
         jarFile=OPENIE_BACKEND_JAR_PATH,
+        argn=1,
         string=synonym,
-        outputPath=OPENIE_ARG1LINKS_PATH)
-      arg2Command = ('java -jar {jarFile} --arg2 "{string}" --noInst '
-        '| cut -d")" -f1-4 '
-        '| grep -i "^Group(.*): (.*, .*, {string})" | less'
-        '>> {outputPath}').format(
+        fields='1,4',
+        outputPath=OPENIE_ENTITYLINKS_PATH)
+      arg2Command = command.format(
         jarFile=OPENIE_BACKEND_JAR_PATH,
+        argn=2,
         string=synonym,
-        outputPath=OPENIE_ARG2LINKS_PATH)
+        fields='3,5',
+        outputPath=OPENIE_ENTITYLINKS_PATH)
       os.system(arg1Command)
       os.system(arg2Command)
 
@@ -128,12 +126,12 @@ def main():
   fbidToEntityMap, testSet = getTestSynonyms(testSetFile)
 
   # Only run this as needed! Takes a while.
-  # getEntityLinks(testSet)
+  #getEntityLinks(testSet)
 
   fbidDistribution = getFbidDistribution(testSet)
-  for synonym, dist in fbidDistribution.iteritems():
+  for synonym, dist in fbidDistribution.items():
     print(synonym)
-    for fbid, count in dist.iteritems():
+    for fbid, count in dist.items():
       entity = fbidToEntityMap[fbid] if fbid in fbidToEntityMap else fbid
       print('  {entity}: {count}'.format(entity=entity, count=count))
 

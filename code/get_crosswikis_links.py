@@ -57,19 +57,19 @@ def parseRowInfo(info):
       numerator += int(match.group(1))
   return numerator
 
-def addToEntityCount(entityCounts, entity, num):
-  """Adds or inserts a numerator to the entity's count.
+def addToDictCount(dictionary, key, num):
+  """Adds or inserts a numerator to the key's count.
 
   Args:
-    entityCounts: A dict that maps entities to the numerator count.
-    entity: The entity to map.
-    num: The numerator of the conditional probability.
+    dictionary: A dict that maps keys to a count.
+    key: The entity to map.
+    num: The count to add.
   """
-  if entity in entityCounts:
-    currentNum = entityCounts[entity]
-    entityCounts[entity] = currentNum + num
+  if key in dictionary:
+    count = dictionary[key]
+    dictionary[key] = count + num
   else:
-    entityCounts[entity] = num
+    dictionary[key] = num
 
 def getEntityDistribution(synonym, cursor):
   """Gets the distribution of entities linked to the synonym in Crosswikis.
@@ -89,14 +89,12 @@ def getEntityDistribution(synonym, cursor):
     'FROM crosswikis '
     'WHERE anchor=? COLLATE NOCASE'
   )
-  # Crosswikis is case sensitive. To make this case insensitive, we sum the
-  # numerators for unique synonym spellings and make that the denominator for
-  # them all.
   entityCounts = {}
 
   for anchor, entity, info in cursor.execute(query, (synonym,)):
+    print('a={}, e={}, i={}'.format(anchor, entity, info))
     num = parseRowInfo(info)
-    addToEntityCount(entityCounts, entity, num)
+    addToDictCount(entityCounts, entity, num)
 
   denom = sum(entityCounts.values())
   entityDistribution = list(entityCounts.items())
@@ -111,7 +109,7 @@ def getEntityDistribution(synonym, cursor):
   return sortedEntityDistribution
 
 def printEntityDistribution(correctEntity, synonym, entityDistribution):
-  """Print the entity distribution to standard output.
+  """Print the entity distribution to a file.
 
   The output is tab delimited, so you can load it into a spreadsheet as well.
 

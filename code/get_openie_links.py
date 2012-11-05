@@ -126,14 +126,14 @@ def main():
   fbidToEntityMap, testSet = getTestSynonyms(testSetFile)
 
   # Only run this as needed! Takes a while.
-  #getEntityLinks(testSet)
+  getEntityLinks(testSet)
 
-  fbidDistribution = getFbidDistribution(testSet)
-  for synonym, dist in fbidDistribution.items():
-    print(synonym)
-    for fbid, count in dist.items():
-      entity = fbidToEntityMap[fbid] if fbid in fbidToEntityMap else fbid
-      print('  {entity}: {count}'.format(entity=entity, count=count))
+#  fbidDistribution = getFbidDistribution(testSet)
+#  for synonym, dist in fbidDistribution.items():
+#    print(synonym)
+#    for fbid, count in dist.items():
+#      entity = fbidToEntityMap[fbid] if fbid in fbidToEntityMap else fbid
+#      print('  {entity}: {count}'.format(entity=entity, count=count))
 
 if __name__ == '__main__':
   main()

@@ -1,7 +1,6 @@
 # Evaluates the synonyms from the current Open IE entity linker.
 import os
 import re
-import sys
 
 SYNONYM_DEV_SET_PATH = ('/home/jstn/research/knowitall/synonym-data-eval/data/'
   'odd-synonym-dev-set')
